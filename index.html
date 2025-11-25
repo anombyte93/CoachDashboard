@@ -418,18 +418,19 @@
   "weekOf": "2025-11-16",
   "measurements": {
     "weight": 116,
-    "waist": 98,
-    "belly_button": 101,
-    "hips": 112,
-    "thigh": 68,
+    "waist": 86,
+    "chest": 120,
+    "middle": 102,
+    "butt": 110,
+    "leg": 68,
     "steps": 56042
   },
   "training": {
-    "overall_performance": "Strong week with consistent energy levels",
-    "completed": "4 strength sessions, 2 conditioning workouts",
-    "difficulty": "Moderate - progressive overload on main lifts",
-    "recovery": "Good recovery between sessions, no excessive fatigue",
-    "enjoyment": "High - new program variation keeping things fresh"
+    "overall_performance": "Good energy, strong sessions",
+    "completed": "3 workouts (skipped full body)",
+    "difficulty": "Squats tight, rest good",
+    "recovery": "Good but sore",
+    "enjoyment": "Loved the training"
   },
   "nutrition": {
     "daily": [
@@ -577,9 +578,10 @@
     const measurementsData = [
       { label: 'Weight', value: `${data.measurements.weight} kg`, highlight: true },
       { label: 'Waist', value: `${data.measurements.waist} cm` },
-      { label: 'Belly Button', value: `${data.measurements.belly_button} cm` },
-      { label: 'Hips', value: `${data.measurements.hips} cm` },
-      { label: 'Thigh', value: `${data.measurements.thigh} cm` },
+      { label: 'Chest', value: `${data.measurements.chest} cm` },
+      { label: 'Middle', value: `${data.measurements.middle} cm` },
+      { label: 'Butt', value: `${data.measurements.butt} cm` },
+      { label: 'Leg', value: `${data.measurements.leg} cm` },
       { label: 'Weekly Steps', value: data.measurements.steps.toLocaleString() }
     ];
 
@@ -730,7 +732,7 @@
         ...chartOptions,
         scales: {
           ...chartOptions.scales,
-          y: { ...chartOptions.scales.y, min: 45, max: 65 }
+          y: { ...chartOptions.scales.y, min: 65, max: 80 }
         }
       }
     });
@@ -767,10 +769,11 @@
                 label: {
                   display: true,
                   content: '8h target',
-                  position: 'end',
-                  backgroundColor: 'transparent',
+                  position: 'start',
+                  backgroundColor: 'white',
                   color: '#22c55e',
-                  font: { size: 10 }
+                  font: { size: 10 },
+                  yAdjust: -12
                 }
               }
             }
@@ -832,7 +835,7 @@
         ...chartOptions,
         scales: {
           ...chartOptions.scales,
-          y: { ...chartOptions.scales.y, min: 2400, max: 3000 }
+          y: { ...chartOptions.scales.y, min: 2500, max: 3800 }
         },
         plugins: {
           ...chartOptions.plugins,
@@ -848,10 +851,11 @@
                 label: {
                   display: true,
                   content: `${data.nutrition.targets.calories} target`,
-                  position: 'end',
-                  backgroundColor: 'transparent',
+                  position: 'start',
+                  backgroundColor: 'white',
                   color: '#ef4444',
-                  font: { size: 10 }
+                  font: { size: 10 },
+                  yAdjust: -12
                 }
               }
             }
