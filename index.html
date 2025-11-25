@@ -126,6 +126,24 @@
     .recovery-score.green { color: var(--green); }
     .recovery-score.yellow { color: var(--yellow); }
     .recovery-score.red { color: var(--red); }
+    .recovery-score.blue { color: var(--blue); }
+    .recovery-score.purple { color: var(--purple); }
+
+    /* Insight Card */
+    .insight-card {
+      background: linear-gradient(135deg, var(--gray-800) 0%, #374151 100%);
+      color: white;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .insight-card p {
+      font-size: 1.125rem;
+      font-weight: 500;
+      line-height: 1.5;
+      margin: 0;
+    }
 
     .recovery-label {
       font-size: 0.875rem;
@@ -282,12 +300,29 @@
       <p class="week-date" id="weekDate"></p>
     </header>
 
+    <!-- AI Insight -->
+    <div class="card insight-card" id="insightCard">
+      <p id="aiInsight">Loading insight...</p>
+    </div>
+
     <!-- Summary Cards -->
     <div class="grid" id="summaryGrid">
       <div class="card recovery-card">
         <h2>Recovery Score</h2>
         <div class="recovery-score" id="recoveryScore">--</div>
         <p class="recovery-label" id="recoveryLabel">Loading...</p>
+      </div>
+
+      <div class="card recovery-card">
+        <h2>Daily Calories</h2>
+        <div class="recovery-score blue" id="avgCalories">--</div>
+        <p class="recovery-label">avg per day</p>
+      </div>
+
+      <div class="card recovery-card">
+        <h2>Daily Steps</h2>
+        <div class="recovery-score purple" id="avgSteps">--</div>
+        <p class="recovery-label">avg per day</p>
       </div>
 
       <div class="card">
@@ -481,6 +516,54 @@
       recoveryEl.classList.add('red');
       document.getElementById('recoveryLabel').textContent = 'Recovery Focus Needed';
     }
+
+    // Avg Calories Card
+    document.getElementById('avgCalories').textContent = data.nutrition.averages.calories.toLocaleString();
+
+    // Avg Steps Card (daily average from weekly total)
+    const avgSteps = Math.round(data.measurements.steps / 7);
+    document.getElementById('avgSteps').textContent = avgSteps.toLocaleString();
+
+    // AI Insight - Generate based on data
+    function generateInsight() {
+      const insights = [];
+
+      // Recovery trend
+      if (avgRecovery >= 70) {
+        insights.push('Strong recovery this week.');
+      } else if (avgRecovery >= 50) {
+        insights.push('Moderate recovery - monitor fatigue.');
+      } else {
+        insights.push('Recovery needs attention.');
+      }
+
+      // Sleep assessment
+      const avgSleep = data.whoop.averages.sleep;
+      if (avgSleep < 7) {
+        insights.push(`Sleep averaging ${avgSleep}h (target 8h).`);
+      }
+
+      // Nutrition adherence
+      const calDiff = Math.abs(data.nutrition.averages.calories - data.nutrition.targets.calories);
+      const calPercent = ((data.nutrition.averages.calories / data.nutrition.targets.calories) * 100).toFixed(0);
+      if (calDiff < 100) {
+        insights.push(`Nutrition on point at ${calPercent}% of target.`);
+      } else if (data.nutrition.averages.calories > data.nutrition.targets.calories) {
+        insights.push(`Calories ${calDiff} over target.`);
+      } else {
+        insights.push(`Calories ${calDiff} under target.`);
+      }
+
+      // Protein check
+      const proteinDiff = data.nutrition.targets.protein - data.nutrition.averages.protein;
+      if (proteinDiff > 10) {
+        insights.push(`Protein ${proteinDiff}g below target.`);
+      }
+
+      return insights.join(' ');
+    }
+
+    document.getElementById('aiInsight').textContent = generateInsight();
 
     // Measurements Table
     const measurementsData = [
