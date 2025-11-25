@@ -100,6 +100,12 @@
       aspect-ratio: 16/10;
     }
 
+    .chart-wrap.square {
+      aspect-ratio: 1/1;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
     .chart-wrap canvas {
       width: 100% !important;
       height: 100% !important;
@@ -341,7 +347,7 @@
 
       <div class="card">
         <h2>Macro Distribution</h2>
-        <div class="chart-wrap">
+        <div class="chart-wrap square">
           <canvas id="macrosChart"></canvas>
         </div>
       </div>
@@ -478,7 +484,7 @@
 
     // Measurements Table
     const measurementsData = [
-      { label: 'Weight', value: `${data.measurements.weight} lbs`, highlight: true },
+      { label: 'Weight', value: `${data.measurements.weight} kg`, highlight: true },
       { label: 'Waist', value: `${data.measurements.waist}"` },
       { label: 'Belly Button', value: `${data.measurements.belly_button}"` },
       { label: 'Hips', value: `${data.measurements.hips}"` },

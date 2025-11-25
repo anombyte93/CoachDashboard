@@ -1,0 +1,342 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Create HTML skeleton with semantic structure",
+        "description": "Build the core HTML structure for the single-file dashboard including header, summary cards section, charts grid, notes sections, and embedded JSON data block.",
+        "details": "Create index.html with: DOCTYPE declaration, meta viewport for mobile, title, inline style block placeholder, semantic sections (header, main with summary-cards, charts, measurements, training, nutrition, notes), embedded JSON using script type=application/json, Chart.js CDN link, inline script placeholder.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create HTML head with meta, title, and style block",
+            "description": "DOCTYPE, charset, viewport meta, title, empty style block for CSS",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 2,
+            "title": "Create body structure with semantic sections",
+            "description": "Header with week title, main with grid containers for charts, sections for measurements/training/nutrition notes",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          },
+          {
+            "id": 3,
+            "title": "Add script section with CDN links and JS placeholder",
+            "description": "Embedded JSON data block (type=application/json), Chart.js CDN, annotation plugin CDN, inline script block",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 1
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement mobile-first CSS layout",
+        "description": "Create responsive CSS grid layout that works on mobile (375px) up to desktop (1920px) with proper spacing, typography, and color palette.",
+        "details": "CSS requirements: Mobile-first grid (1 column default, 2 columns at 768px, 3 columns at 1200px), color palette (green #22c55e, yellow #eab308, red #ef4444, blue #3b82f6, purple #8b5cf6, orange #f97316), system-ui font stack, card styling with shadows, proper spacing (1.5rem gap).",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Define CSS variables and base styles",
+            "description": "CSS reset, :root color variables (green #22c55e, yellow #eab308, red #ef4444, blue #3b82f6, purple #8b5cf6, orange #f97316), system-ui font stack, body defaults",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 2,
+            "title": "Implement responsive grid layout",
+            "description": "CSS Grid: 1 column default (mobile), 2 columns at 768px, 3 columns at 1200px, 1.5rem gap, max-width container",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2
+          },
+          {
+            "id": 3,
+            "title": "Style cards and chart containers",
+            "description": "Card styling: white background, border-radius 8px, box-shadow, padding 1rem. Chart-wrap: aspect-ratio for Chart.js responsive sizing",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 2
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Add print-optimized CSS styles",
+        "description": "Implement @media print rules for clean PDF generation including hiding interactive elements, white background, optimized chart sizes, and page break handling.",
+        "details": "Print styles: Hide .no-print elements, white background with black text, 12pt font size, 2-column grid for charts, max-width 280px on canvas elements, page-break-before for sections, print-only footer with week date and generation timestamp.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          2
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Add @media print base rules",
+            "description": "Hide .no-print elements, white background, black text, 12pt font size",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 2,
+            "title": "Optimize chart sizing for print",
+            "description": "2-column grid for charts, max-width 280px on canvas elements, page-break handling",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 3,
+            "title": "Add print-only footer",
+            "description": "Footer with week date and generation timestamp, visible only in print",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 3
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "title": "Embed sample weekly JSON data",
+        "description": "Create and embed the complete JSON data structure with WHOOP metrics, MacroFactor nutrition data, measurements, and training summary for the week of Nov 18, 2025.",
+        "details": "JSON structure: weekOf, measurements (weight, waist, belly_button, hips, thigh, steps), training (overall_performance, completed, difficulty, recovery, enjoyment), nutrition (daily array with 7 days of calories/protein/carbs/fat, averages, targets, notes), whoop (daily array with 7 days of hrv/rhr/sleep/strain/recovery, averages, sleep_metrics, interpretation).",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create measurements and training JSON structure",
+            "description": "weekOf date, measurements object (weight, waist, belly_button, hips, thigh, steps), training object (performance, completed, difficulty, recovery, enjoyment)",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 2,
+            "title": "Create nutrition JSON structure",
+            "description": "daily array with 7 days (calories, protein, carbs, fat), averages object, targets object, notes string",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          },
+          {
+            "id": 3,
+            "title": "Create WHOOP JSON structure",
+            "description": "daily array with 7 days (hrv, rhr, sleep, strain, recovery), averages object, sleep_metrics object, interpretation string",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 4
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Implement WHOOP charts (HRV, RHR, Sleep, Strain)",
+        "description": "Create 4 Chart.js visualizations for WHOOP recovery metrics: HRV line chart with baseline band, RHR line chart, Sleep duration bar chart, and Strain bar chart.",
+        "details": "Chart configs: HRV - line chart, blue (#3b82f6), baseline zone as gray band, 7 data points. RHR - line chart, red (#ef4444), lower is better indication. Sleep - bar chart, purple (#8b5cf6), target line overlay at 8 hours. Strain - bar chart, orange (#f97316), cumulative weekly shown. All charts: responsive:true, maintainAspectRatio:true, minimal legend.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          1,
+          4
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create HRV line chart with baseline band",
+            "description": "Line chart with fill between two datasets for baseline zone (gray band 40-60), blue line for actual HRV, 7 data points",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 5
+          },
+          {
+            "id": 2,
+            "title": "Create RHR line chart",
+            "description": "Simple line chart, red color, 7 data points, lower values better indication",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 5
+          },
+          {
+            "id": 3,
+            "title": "Create Sleep duration bar chart with target line",
+            "description": "Bar chart purple, annotation plugin for 8-hour target line (dashed), 7 data points",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 5
+          },
+          {
+            "id": 4,
+            "title": "Create Strain bar chart",
+            "description": "Bar chart orange, 7 data points for daily strain values, show weekly cumulative in title",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 5
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Implement nutrition charts (Calories, Macros)",
+        "description": "Create 2 Chart.js visualizations for MacroFactor nutrition data: Calories line chart with target overlay, and Macros doughnut chart showing protein/carbs/fat distribution.",
+        "details": "Calories chart: line chart, green (#22c55e) for actual, red dashed line for target (2725), 7 data points. Macros doughnut: Protein blue (#3b82f6), Carbs yellow (#eab308), Fat red (#ef4444), show percentages, center text with total. Both responsive with minimal decoration.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          1,
+          4
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create Calories line chart with target annotation",
+            "description": "Line chart green, 7 data points, annotation plugin for dashed red target line at 2725 calories",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 6
+          },
+          {
+            "id": 2,
+            "title": "Create Macros doughnut chart with center text",
+            "description": "Doughnut chart with Protein (blue), Carbs (yellow), Fat (red), cutout 70%, center text plugin showing total calories or macro split",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 6
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Build summary cards and data tables",
+        "description": "Create recovery score card (color-coded), measurements table, training notes section, and nutrition notes section with proper styling.",
+        "details": "Recovery card: Large number display, color zones (green >70, yellow 50-70, red <50), label showing readiness. Measurements table: Clean 2-column layout (metric, value), highlight weight. Training section: Text blocks for each field. Nutrition section: Averages vs targets comparison, notes display. All cards with consistent shadow and border-radius.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          2,
+          4
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Build recovery score card with color coding",
+            "description": "Large number display, dynamic color zones: green (>70), yellow (50-70), red (<50), label showing training readiness",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 2,
+            "title": "Create measurements table",
+            "description": "Clean 2-column table: metric name, value. Include weight, waist, belly button, hips, thigh, steps",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 7
+          },
+          {
+            "id": 3,
+            "title": "Build training and nutrition notes sections",
+            "description": "Training: text blocks for performance, completed, difficulty, recovery, enjoyment. Nutrition: averages vs targets comparison, notes display",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 7
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Deploy to GitHub Pages and test",
+        "description": "Create GitHub repository, push index.html, enable GitHub Pages, test live URL on mobile and desktop, verify print-to-PDF functionality.",
+        "details": "Steps: 1) git init if needed, 2) Create GitHub repo via gh cli, 3) Push index.html to main, 4) Enable Pages in Settings (deploy from main), 5) Test URL on mobile (375px viewport), 6) Test print preview in Chrome/Firefox, 7) Generate sample PDF, 8) Document final URL and data update instructions.",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          5,
+          6,
+          7
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create GitHub repository and push code",
+            "description": "git init, gh repo create, git add index.html, git commit, git push",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 8
+          },
+          {
+            "id": 2,
+            "title": "Enable GitHub Pages and verify deployment",
+            "description": "Settings > Pages > Deploy from main, wait for build, verify public URL works",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 8
+          },
+          {
+            "id": 3,
+            "title": "Test mobile and print functionality",
+            "description": "Test on 375px viewport, verify responsive layout, test print preview in Chrome/Firefox, generate sample PDF",
+            "details": "",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 8
+          }
+        ]
+      }
+    ],
+    "metadata": {
+      "created": "2025-11-25T11:25:45.678Z",
+      "description": "Default tasks context",
+      "updated": "2025-11-25T11:33:07.117Z"
+    }
+  }
+}
