@@ -89,9 +89,16 @@
       font-size: 0.875rem;
       font-weight: 600;
       color: var(--gray-600);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.25rem;
       text-transform: uppercase;
       letter-spacing: 0.025em;
+    }
+
+    .chart-explainer {
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
     }
 
     /* Chart Container */
@@ -343,6 +350,7 @@
     <div class="grid">
       <div class="card">
         <h2>HRV (Heart Rate Variability)</h2>
+        <p class="chart-explainer">Higher = better recovery. Measures nervous system readiness. Gray band shows your baseline range.</p>
         <div class="chart-wrap">
           <canvas id="hrvChart"></canvas>
         </div>
@@ -350,6 +358,7 @@
 
       <div class="card">
         <h2>Resting Heart Rate</h2>
+        <p class="chart-explainer">Lower = better recovery. Elevated RHR can signal stress, poor sleep, or overtraining.</p>
         <div class="chart-wrap">
           <canvas id="rhrChart"></canvas>
         </div>
@@ -357,6 +366,7 @@
 
       <div class="card">
         <h2>Sleep Duration</h2>
+        <p class="chart-explainer">Aim for 7-9 hours. Sleep is when your body repairs muscle and consolidates training gains.</p>
         <div class="chart-wrap">
           <canvas id="sleepChart"></canvas>
         </div>
@@ -364,6 +374,7 @@
 
       <div class="card">
         <h2>Strain</h2>
+        <p class="chart-explainer">Daily cardiovascular load (0-21 scale). Balance strain with recovery for optimal progress.</p>
         <div class="chart-wrap">
           <canvas id="strainChart"></canvas>
         </div>
@@ -375,6 +386,7 @@
     <div class="grid">
       <div class="card">
         <h2>Daily Calories</h2>
+        <p class="chart-explainer">Track intake vs target. Consistent adherence drives body composition changes over time.</p>
         <div class="chart-wrap">
           <canvas id="caloriesChart"></canvas>
         </div>
@@ -382,6 +394,7 @@
 
       <div class="card">
         <h2>Macro Distribution</h2>
+        <p class="chart-explainer">Protein for muscle, carbs for energy, fats for hormones. Balance matters for performance.</p>
         <div class="chart-wrap square">
           <canvas id="macrosChart"></canvas>
         </div>
