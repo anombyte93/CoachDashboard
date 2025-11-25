@@ -415,14 +415,14 @@
   <!-- Embedded JSON Data -->
   <script type="application/json" id="dashboardData">
 {
-  "weekOf": "2025-11-18",
+  "weekOf": "2025-11-16",
   "measurements": {
-    "weight": 185.4,
-    "waist": 34.5,
-    "belly_button": 36.0,
-    "hips": 40.5,
-    "thigh": 24.0,
-    "steps": 52847
+    "weight": 116,
+    "waist": 98,
+    "belly_button": 101,
+    "hips": 112,
+    "thigh": 68,
+    "steps": 56042
   },
   "training": {
     "overall_performance": "Strong week with consistent energy levels",
@@ -433,27 +433,27 @@
   },
   "nutrition": {
     "daily": [
-      { "day": "Mon", "calories": 2680, "protein": 185, "carbs": 285, "fat": 85 },
-      { "day": "Tue", "calories": 2750, "protein": 190, "carbs": 295, "fat": 82 },
-      { "day": "Wed", "calories": 2620, "protein": 178, "carbs": 275, "fat": 88 },
-      { "day": "Thu", "calories": 2800, "protein": 195, "carbs": 305, "fat": 80 },
-      { "day": "Fri", "calories": 2710, "protein": 182, "carbs": 290, "fat": 86 },
-      { "day": "Sat", "calories": 2900, "protein": 175, "carbs": 340, "fat": 92 },
-      { "day": "Sun", "calories": 2550, "protein": 170, "carbs": 260, "fat": 84 }
+      { "day": "Mon", "calories": 3200, "protein": 165, "carbs": 340, "fat": 180 },
+      { "day": "Tue", "calories": 3500, "protein": 175, "carbs": 370, "fat": 195 },
+      { "day": "Wed", "calories": 3400, "protein": 170, "carbs": 355, "fat": 188 },
+      { "day": "Thu", "calories": 3600, "protein": 180, "carbs": 380, "fat": 200 },
+      { "day": "Fri", "calories": 3300, "protein": 168, "carbs": 345, "fat": 182 },
+      { "day": "Sat", "calories": 3550, "protein": 175, "carbs": 375, "fat": 195 },
+      { "day": "Sun", "calories": 3580, "protein": 171, "carbs": 355, "fat": 190 }
     ],
     "averages": {
-      "calories": 2716,
-      "protein": 182,
-      "carbs": 293,
-      "fat": 85
+      "calories": 3447,
+      "protein": 172,
+      "carbs": 360,
+      "fat": 190
     },
     "targets": {
       "calories": 2725,
-      "protein": 185,
-      "carbs": 290,
-      "fat": 85
+      "protein": 195,
+      "carbs": 314,
+      "fat": 102
     },
-    "notes": "Slightly under protein target on weekend. Saturday higher carbs for long hike. Overall adherence excellent at 99.7%."
+    "notes": "126% of calorie target due to travel + takeaway. Protein improving (88% of target). Fat elevated from convenience foods. Hydration low. Focus: meal prep, protein-first, 3L+ water daily."
   },
   "whoop": {
     "daily": [
@@ -540,24 +540,30 @@
       // Sleep assessment
       const avgSleep = data.whoop.averages.sleep;
       if (avgSleep < 7) {
-        insights.push(`Sleep averaging ${avgSleep}h (target 8h).`);
+        insights.push(`Sleep averaging ${avgSleep}h (need 8h).`);
       }
 
       // Nutrition adherence
-      const calDiff = Math.abs(data.nutrition.averages.calories - data.nutrition.targets.calories);
       const calPercent = ((data.nutrition.averages.calories / data.nutrition.targets.calories) * 100).toFixed(0);
-      if (calDiff < 100) {
-        insights.push(`Nutrition on point at ${calPercent}% of target.`);
-      } else if (data.nutrition.averages.calories > data.nutrition.targets.calories) {
-        insights.push(`Calories ${calDiff} over target.`);
+      const calDiff = data.nutrition.averages.calories - data.nutrition.targets.calories;
+      if (calPercent > 115) {
+        insights.push(`Calories at ${calPercent}% of target (+${calDiff}).`);
+      } else if (calPercent < 90) {
+        insights.push(`Calories at ${calPercent}% of target (${calDiff}).`);
       } else {
-        insights.push(`Calories ${calDiff} under target.`);
+        insights.push(`Calories on track at ${calPercent}%.`);
       }
 
       // Protein check
-      const proteinDiff = data.nutrition.targets.protein - data.nutrition.averages.protein;
-      if (proteinDiff > 10) {
-        insights.push(`Protein ${proteinDiff}g below target.`);
+      const proteinPercent = ((data.nutrition.averages.protein / data.nutrition.targets.protein) * 100).toFixed(0);
+      if (proteinPercent < 90) {
+        insights.push(`Protein at ${proteinPercent}% - prioritise protein-first meals.`);
+      }
+
+      // Fat check (if way over)
+      const fatPercent = ((data.nutrition.averages.fat / data.nutrition.targets.fat) * 100).toFixed(0);
+      if (fatPercent > 150) {
+        insights.push(`Fat elevated (${fatPercent}%) - likely takeaway/convenience foods.`);
       }
 
       return insights.join(' ');
