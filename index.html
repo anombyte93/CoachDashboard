@@ -406,6 +406,25 @@
         <div class="notes-section" id="whoopNotes"></div>
       </div>
     </div>
+
+    <!-- Health & Well-Being Section -->
+    <h3 class="section-title">Health & Well-Being</h3>
+    <div class="grid">
+      <div class="card">
+        <h2>This Week</h2>
+        <div class="notes-section" id="wellbeingNotes"></div>
+      </div>
+
+      <div class="card">
+        <h2>Wins & Achievements</h2>
+        <div class="notes-section" id="winsNotes"></div>
+      </div>
+
+      <div class="card">
+        <h2>Questions for Coach</h2>
+        <div class="notes-section" id="coachQuestions"></div>
+      </div>
+    </div>
   </div>
 
   <div class="print-footer">
@@ -481,7 +500,23 @@
       "consistency": 51
     },
     "interpretation": "Moderate recovery (57%) with high strain and significant sleep deficit. Averaging 5.7h vs 8.9h need. RHR elevated at 73 bpm. Routine disruption affecting sleep consistency (51%). Priority: improve sleep duration to support recovery."
-  }
+  },
+  "wellbeing": {
+    "pain": "Minor soreness - normal training soreness",
+    "appetite": "Good - normal appetite, no issues",
+    "cravings": "Some cravings for sugar/junk",
+    "stress": "Very high - travel, social events, work pressure",
+    "mood": "Anxious/stressed - mind racing",
+    "recovery_outside_gym": "Good - did recovery work",
+    "lifestyle_factors": "Travel, social events, work stress all impacting routine"
+  },
+  "wins": [
+    "Consistency win - stuck to plan despite challenges",
+    "Mindset win - mental breakthrough",
+    "Got more protein!",
+    "Worked super hard and smashed legs"
+  ],
+  "coach_questions": "What should I be doing when I get cravings? I find if I fast in the morning it helps me not overeat."
 }
   </script>
 
@@ -642,6 +677,44 @@
     whoopNotes.innerHTML = `
       <div class="note-item">
         <span class="note-value">${data.whoop.interpretation}</span>
+      </div>
+    `;
+
+    // Well-being Notes
+    const wellbeingNotes = document.getElementById('wellbeingNotes');
+    const wellbeingItems = [
+      { label: 'Pain/Discomfort', value: data.wellbeing.pain },
+      { label: 'Appetite', value: data.wellbeing.appetite },
+      { label: 'Cravings', value: data.wellbeing.cravings },
+      { label: 'Stress', value: data.wellbeing.stress },
+      { label: 'Mood', value: data.wellbeing.mood },
+      { label: 'Recovery', value: data.wellbeing.recovery_outside_gym },
+      { label: 'Lifestyle', value: data.wellbeing.lifestyle_factors }
+    ];
+    wellbeingItems.forEach(item => {
+      wellbeingNotes.innerHTML += `
+        <div class="note-item">
+          <span class="note-label">${item.label}:</span>
+          <span class="note-value">${item.value}</span>
+        </div>
+      `;
+    });
+
+    // Wins Notes
+    const winsNotes = document.getElementById('winsNotes');
+    data.wins.forEach(win => {
+      winsNotes.innerHTML += `
+        <div class="note-item">
+          <span class="note-value">✓ ${win}</span>
+        </div>
+      `;
+    });
+
+    // Coach Questions
+    const coachQuestions = document.getElementById('coachQuestions');
+    coachQuestions.innerHTML = `
+      <div class="note-item">
+        <span class="note-value">${data.coach_questions}</span>
       </div>
     `;
 
