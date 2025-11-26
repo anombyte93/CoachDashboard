@@ -4,6 +4,26 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weekly Coach Dashboard</title>
+  <script>
+    // Auth check - redirect to login if not authenticated
+    (function() {
+      const session = localStorage.getItem('coachDashboardSession');
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      try {
+        const parsed = JSON.parse(session);
+        if (parsed.expiry < Date.now()) {
+          localStorage.removeItem('coachDashboardSession');
+          window.location.href = 'login.html';
+        }
+      } catch (e) {
+        localStorage.removeItem('coachDashboardSession');
+        window.location.href = 'login.html';
+      }
+    })();
+  </script>
   <style>
     /* CSS Variables and Base Styles */
     :root {
@@ -504,6 +524,8 @@
           </svg>
           Import CSV
         </button>
+        <a href="admin.html" class="btn btn-secondary" id="adminLink" style="display:none;">Admin</a>
+        <button class="btn btn-secondary" onclick="logout()" style="background: #ef4444; color: white;">Logout</button>
       </div>
     </header>
 
@@ -1383,8 +1405,28 @@
     });
     } // End of renderDashboard function
 
+    // ===== AUTH FUNCTIONS =====
+    function logout() {
+      localStorage.removeItem('coachDashboardSession');
+      window.location.href = 'login.html';
+    }
+
+    // Show admin link if user is admin
+    function checkAdminRole() {
+      const session = localStorage.getItem('coachDashboardSession');
+      if (session) {
+        try {
+          const parsed = JSON.parse(session);
+          if (parsed.role === 'admin') {
+            document.getElementById('adminLink').style.display = 'inline-flex';
+          }
+        } catch (e) {}
+      }
+    }
+
     // ===== INITIALIZATION =====
-    // Render week tabs and initial dashboard
+    // Check admin role and render dashboard
+    checkAdminRole();
     renderWeekTabs();
     renderDashboard();
   </script>
