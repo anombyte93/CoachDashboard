@@ -1459,7 +1459,7 @@
     // ===== AUTH FUNCTIONS =====
     function logout() {
       localStorage.removeItem('coachDashboardSession');
-      window.location.href = 'login.html';
+      window.location.href = 'login.html?logout=true';
     }
 
     // Show admin link if user is admin

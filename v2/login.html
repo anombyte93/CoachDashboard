@@ -231,6 +231,14 @@
       }
     });
 
+    // Check for forced logout via URL param
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('logout') === 'true') {
+      localStorage.removeItem('coachDashboardSession');
+      // Remove the logout param from URL
+      window.history.replaceState({}, '', window.location.pathname + (urlParams.get('redirect') ? '?redirect=' + urlParams.get('redirect') : ''));
+    }
+
     // Check for existing session on load
     checkExistingSession();
   </script>
