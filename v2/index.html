@@ -766,13 +766,53 @@
 
   <script>
     // ===== WEEK MANAGEMENT =====
-    // Available weeks (add new weeks here as files are created in data/weeks/)
-    const availableWeeks = ['2025-11-16'];
+    const WEEK_COUNT = 8;
+    const embeddedData = JSON.parse(document.getElementById('dashboardData').textContent);
+
+    function toISODate(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function parseISODate(isoDate) {
+      const [year, month, day] = isoDate.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+
+    function getMonday(date) {
+      const d = new Date(date);
+      const day = d.getDay();
+      const diff = (day + 6) % 7; // days since Monday
+      d.setDate(d.getDate() - diff);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+
+    function generateRecentWeeks(count) {
+      const weeks = [];
+      const currentMonday = getMonday(new Date());
+      for (let i = 0; i < count; i++) {
+        const weekStart = new Date(currentMonday);
+        weekStart.setDate(currentMonday.getDate() - i * 7);
+        weeks.push(toISODate(weekStart));
+      }
+      return weeks;
+    }
+
+    function getFallbackWeekData(weekDate) {
+      const fallback = JSON.parse(JSON.stringify(embeddedData));
+      fallback.weekOf = weekDate;
+      return fallback;
+    }
+
+    const availableWeeks = generateRecentWeeks(WEEK_COUNT);
     let currentWeekIndex = 0;
     let chartInstances = {};
 
     // Load embedded JSON data (fallback/default)
-    let data = JSON.parse(document.getElementById('dashboardData').textContent);
+    let data = getFallbackWeekData(availableWeeks[0]);
     let days = data.whoop.daily.map(d => d.day);
 
     // ===== PDF EXPORT =====
@@ -891,7 +931,7 @@
       tabsContainer.innerHTML = '';
 
       availableWeeks.forEach((weekDate, index) => {
-        const date = new Date(weekDate);
+        const date = parseISODate(weekDate);
         const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const tab = document.createElement('button');
         tab.className = 'week-tab' + (index === currentWeekIndex ? ' active' : '');
@@ -902,23 +942,25 @@
     }
 
     async function loadWeek(index) {
-      if (index === currentWeekIndex && index === 0) return; // Already loaded from embedded data
-
       currentWeekIndex = index;
       const weekDate = availableWeeks[index];
 
       try {
         // Try to load from data/weeks/ directory
         const response = await fetch(`data/weeks/${weekDate}.json`);
-        if (response.ok) {
-          data = await response.json();
-          days = data.whoop.daily.map(d => d.day);
-          renderDashboard();
-          renderWeekTabs();
+        if (!response.ok) {
+          throw new Error(`Week file not found (${response.status})`);
         }
+        const loadedWeek = await response.json();
+        data = { ...loadedWeek, weekOf: loadedWeek.weekOf || weekDate };
       } catch (e) {
-        console.log('Using embedded data for week', weekDate);
+        console.warn('Using embedded data for week', weekDate, e);
+        data = getFallbackWeekData(weekDate);
       }
+
+      days = data.whoop.daily.map(d => d.day);
+      renderWeekTabs();
+      renderDashboard();
     }
 
     // ===== DASHBOARD RENDERING =====
@@ -1425,10 +1467,11 @@
     }
 
     // ===== INITIALIZATION =====
-    // Check admin role and render dashboard
+    // Check admin role, show fallback data immediately, then try to load current week from file
     checkAdminRole();
     renderWeekTabs();
     renderDashboard();
+    loadWeek(0);
   </script>
 </body>
 </html>

@@ -4,6 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Weekly Check-In - Coach Dashboard</title>
+  <script>
+    // Auth check - redirect if not logged in or not admin
+    (function() {
+      const session = localStorage.getItem('coachDashboardSession');
+      if (!session) {
+        window.location.href = 'v2/login.html';
+        return;
+      }
+      try {
+        const parsed = JSON.parse(session);
+        if (parsed.expiry < Date.now()) {
+          localStorage.removeItem('coachDashboardSession');
+          window.location.href = 'v2/login.html';
+          return;
+        }
+        if (parsed.role !== 'admin') {
+          window.location.href = 'index.html';
+          return;
+        }
+      } catch (e) {
+        localStorage.removeItem('coachDashboardSession');
+        window.location.href = 'v2/login.html';
+      }
+    })();
+  </script>
   <style>
     :root {
       --green: #22c55e;
@@ -362,7 +387,7 @@
     <nav class="nav">
       <a href="index.html">Dashboard</a>
       <a href="checkin.html" class="active">Check-In</a>
-      <a href="v2/admin.html">Admin</a>
+      <a href="v2/admin.html" id="adminNavLink" style="display: none;">Admin</a>
     </nav>
   </div>
 
@@ -445,8 +470,21 @@
     <!-- Step 2: WHOOP -->
     <div class="section" data-section="2">
       <h2><span class="icon" style="background: var(--purple);">💓</span> WHOOP Data</h2>
+
+      <!-- File Import -->
+      <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--gray-50); border-radius: 8px; border: 2px dashed var(--gray-200);">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 500; color: var(--purple);">
+          <span>📁</span> Import from CSV
+          <input type="file" id="whoopFileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+        </label>
+        <small style="display: block; margin-top: 0.5rem; color: var(--gray-600);">
+          Export from WHOOP app and upload here. Expected columns: date, hrv, rhr, sleep, strain, recovery
+        </small>
+        <div id="whoopImportStatus" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
+      </div>
+
       <p style="margin-bottom: 1rem; color: var(--gray-600); font-size: 0.875rem;">
-        Enter your daily WHOOP metrics. Click each day to fill in.
+        Or enter your daily WHOOP metrics manually. Click each day to fill in.
       </p>
 
       <div class="day-tabs" id="whoopDayTabs">
@@ -501,8 +539,21 @@
     <!-- Step 3: Nutrition -->
     <div class="section" data-section="3">
       <h2><span class="icon" style="background: var(--green);">🥗</span> Nutrition Data</h2>
+
+      <!-- File Import -->
+      <div style="margin-bottom: 1.5rem; padding: 1rem; background: var(--gray-50); border-radius: 8px; border: 2px dashed var(--gray-200);">
+        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 500; color: var(--green);">
+          <span>📁</span> Import from MacroFactor CSV
+          <input type="file" id="nutritionFileInput" accept=".csv" style="display: none;">
+        </label>
+        <small style="display: block; margin-top: 0.5rem; color: var(--gray-600);">
+          Export from MacroFactor and upload here. Expected columns: date, calories, protein, carbs, fat
+        </small>
+        <div id="nutritionImportStatus" style="margin-top: 0.5rem; font-size: 0.875rem;"></div>
+      </div>
+
       <p style="margin-bottom: 1rem; color: var(--gray-600); font-size: 0.875rem;">
-        Enter your daily nutrition from MacroFactor or similar app.
+        Or enter your daily nutrition manually.
       </p>
 
       <div class="day-tabs" id="nutritionDayTabs">
@@ -742,12 +793,36 @@
     let currentNutritionDay = 0;
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+    function showAdminNavLink() {
+      const adminLink = document.getElementById('adminNavLink');
+      if (!adminLink) return;
+
+      const session = localStorage.getItem('coachDashboardSession');
+      if (!session) {
+        adminLink.style.display = 'none';
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(session);
+        if (parsed.role === 'admin') {
+          adminLink.style.display = 'inline-flex';
+        } else {
+          adminLink.style.display = 'none';
+        }
+      } catch (e) {
+        adminLink.style.display = 'none';
+      }
+    }
+
     // Data storage
     const whoopData = Array(7).fill(null).map(() => ({ hrv: '', rhr: '', sleep: '', strain: '', recovery: '' }));
     const nutritionData = Array(7).fill(null).map(() => ({ calories: '', protein: '', carbs: '', fat: '' }));
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
+      showAdminNavLink();
+
       // Set default week date to this Monday
       const today = new Date();
       const monday = new Date(today);
@@ -759,8 +834,150 @@
 
       // Setup day tabs
       setupDayTabs();
+
+      // Setup file import handlers
+      setupFileImports();
+
       updateJSON();
     });
+
+    // CSV Parsing and File Import
+    function setupFileImports() {
+      // WHOOP file import
+      document.getElementById('whoopFileInput').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const statusEl = document.getElementById('whoopImportStatus');
+        statusEl.innerHTML = '<span style="color: var(--blue);">Parsing...</span>';
+
+        try {
+          const text = await file.text();
+          const parsed = parseCSV(text);
+          const imported = importWhoopData(parsed);
+          statusEl.innerHTML = `<span style="color: var(--green);">✓ Imported ${imported} days of WHOOP data</span>`;
+
+          // Update all day tabs
+          whoopData.forEach((_, i) => updateDayTabStatus('whoopDayTabs', i, whoopData[i]));
+          loadWhoopDay(currentWhoopDay);
+        } catch (err) {
+          statusEl.innerHTML = `<span style="color: var(--red);">Error: ${err.message}</span>`;
+        }
+      });
+
+      // Nutrition file import
+      document.getElementById('nutritionFileInput').addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const statusEl = document.getElementById('nutritionImportStatus');
+        statusEl.innerHTML = '<span style="color: var(--blue);">Parsing...</span>';
+
+        try {
+          const text = await file.text();
+          const parsed = parseCSV(text);
+          const imported = importNutritionData(parsed);
+          statusEl.innerHTML = `<span style="color: var(--green);">✓ Imported ${imported} days of nutrition data</span>`;
+
+          // Update all day tabs
+          nutritionData.forEach((_, i) => updateDayTabStatus('nutritionDayTabs', i, nutritionData[i]));
+          loadNutritionDay(currentNutritionDay);
+        } catch (err) {
+          statusEl.innerHTML = `<span style="color: var(--red);">Error: ${err.message}</span>`;
+        }
+      });
+    }
+
+    function parseCSV(text) {
+      const lines = text.trim().split('\n');
+      if (lines.length < 2) throw new Error('CSV has no data rows');
+
+      const headers = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g, ''));
+      const data = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+        const row = {};
+        headers.forEach((h, j) => row[h] = values[j] || '');
+        data.push(row);
+      }
+
+      return { headers, data };
+    }
+
+    function importWhoopData(parsed) {
+      const { headers, data } = parsed;
+      let imported = 0;
+
+      // Map common column names
+      const colMap = {
+        hrv: headers.find(h => h.includes('hrv')) || 'hrv',
+        rhr: headers.find(h => h.includes('rhr') || h.includes('resting')) || 'rhr',
+        sleep: headers.find(h => h.includes('sleep')) || 'sleep',
+        strain: headers.find(h => h.includes('strain')) || 'strain',
+        recovery: headers.find(h => h.includes('recovery')) || 'recovery',
+        date: headers.find(h => h.includes('date')) || 'date'
+      };
+
+      // Get week start date
+      const weekStart = new Date(document.getElementById('weekOf').value);
+
+      data.forEach(row => {
+        const rowDate = new Date(row[colMap.date]);
+        if (isNaN(rowDate.getTime())) return;
+
+        // Calculate day index (0 = Mon, 6 = Sun)
+        const diffDays = Math.floor((rowDate - weekStart) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 0 && diffDays < 7) {
+          whoopData[diffDays] = {
+            hrv: row[colMap.hrv] || '',
+            rhr: row[colMap.rhr] || '',
+            sleep: row[colMap.sleep] || '',
+            strain: row[colMap.strain] || '',
+            recovery: row[colMap.recovery] || ''
+          };
+          imported++;
+        }
+      });
+
+      return imported;
+    }
+
+    function importNutritionData(parsed) {
+      const { headers, data } = parsed;
+      let imported = 0;
+
+      // Map common column names
+      const colMap = {
+        calories: headers.find(h => h.includes('calor') || h.includes('kcal') || h.includes('energy')) || 'calories',
+        protein: headers.find(h => h.includes('protein')) || 'protein',
+        carbs: headers.find(h => h.includes('carb')) || 'carbs',
+        fat: headers.find(h => h.includes('fat')) || 'fat',
+        date: headers.find(h => h.includes('date')) || 'date'
+      };
+
+      // Get week start date
+      const weekStart = new Date(document.getElementById('weekOf').value);
+
+      data.forEach(row => {
+        const rowDate = new Date(row[colMap.date]);
+        if (isNaN(rowDate.getTime())) return;
+
+        // Calculate day index (0 = Mon, 6 = Sun)
+        const diffDays = Math.floor((rowDate - weekStart) / (1000 * 60 * 60 * 24));
+        if (diffDays >= 0 && diffDays < 7) {
+          nutritionData[diffDays] = {
+            calories: row[colMap.calories] || '',
+            protein: row[colMap.protein] || '',
+            carbs: row[colMap.carbs] || '',
+            fat: row[colMap.fat] || ''
+          };
+          imported++;
+        }
+      });
+
+      return imported;
+    }
 
     function setupDayTabs() {
       // WHOOP day tabs
