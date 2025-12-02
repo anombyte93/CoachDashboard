@@ -991,7 +991,6 @@
 
     // Recovery Score Card
     const avgRecovery = data.whoop.averages.recovery;
-    const recoveryEl = document.getElementById('recoveryScore');
     recoveryEl.textContent = avgRecovery;
     if (avgRecovery >= 70) {
       recoveryEl.classList.add('green');
