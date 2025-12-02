@@ -155,6 +155,73 @@
       border-color: var(--blue);
     }
 
+    .week-tab.has-data {
+      border-color: var(--green);
+      position: relative;
+    }
+
+    .week-tab.has-data::after {
+      content: '';
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      width: 8px;
+      height: 8px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    .week-tab.latest {
+      background: linear-gradient(135deg, var(--blue) 0%, #4f46e5 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+      transform: scale(1.05);
+      font-weight: 600;
+    }
+
+    .week-tab.latest::before {
+      content: '✨ ';
+    }
+
+    .week-tab .updated-badge {
+      display: inline-block;
+      font-size: 0.65rem;
+      background: var(--green);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 10px;
+      margin-left: 6px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .week-tab.latest .updated-badge {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .week-tab.no-data {
+      opacity: 0.4;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    .last-updated-info {
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: var(--gray-50);
+      border-radius: 6px;
+    }
+
+    .last-updated-info .highlight {
+      color: var(--green);
+      font-weight: 600;
+    }
+
     /* CSV Helper Modal */
     .modal-overlay {
       display: none;
@@ -706,6 +773,11 @@
       <!-- Populated by JavaScript -->
     </div>
 
+    <!-- Last Updated Info -->
+    <div class="last-updated-info" id="lastUpdatedInfo" style="display: none;">
+      <!-- Populated by JavaScript -->
+    </div>
+
     <!-- AI Insight -->
     <div class="card insight-card" id="insightCard">
       <p id="aiInsight">Loading insight...</p>
@@ -1128,17 +1200,115 @@
     });
 
     // ===== WEEK TABS =====
+    // Track which weeks have actual data
+    let weeksWithData = {};
+    let latestWeekWithData = null;
+
+    // Check which weeks have data files
+    async function checkWeeksWithData() {
+      const checks = availableWeeks.map(async (weekDate) => {
+        try {
+          const response = await fetch(`data/weeks/${weekDate}.json`, { method: 'HEAD' });
+          if (response.ok) {
+            // Also fetch to get generated_at timestamp
+            const dataResponse = await fetch(`data/weeks/${weekDate}.json`);
+            const weekData = await dataResponse.json();
+            weeksWithData[weekDate] = {
+              hasData: true,
+              generatedAt: weekData.generated_at || null,
+              hasCoachSummary: !!(weekData.coach_summary || weekData.insights)
+            };
+            return weekDate;
+          }
+        } catch (e) {
+          // No data for this week
+        }
+        weeksWithData[weekDate] = { hasData: false };
+        return null;
+      });
+
+      const results = await Promise.all(checks);
+      // Find the latest week with data
+      latestWeekWithData = results.find(w => w !== null) || null;
+      renderWeekTabs();
+      updateLastUpdatedInfo();
+    }
+
+    function updateLastUpdatedInfo() {
+      const infoEl = document.getElementById('lastUpdatedInfo');
+      if (latestWeekWithData && weeksWithData[latestWeekWithData]?.generatedAt) {
+        const genDate = new Date(weeksWithData[latestWeekWithData].generatedAt);
+        const timeAgo = getTimeAgo(genDate);
+        infoEl.innerHTML = `📊 Latest check-in: <span class="highlight">Week of ${formatWeekLabel(latestWeekWithData)}</span> • Updated ${timeAgo}`;
+        infoEl.style.display = 'block';
+      } else if (latestWeekWithData) {
+        infoEl.innerHTML = `📊 Latest check-in: <span class="highlight">Week of ${formatWeekLabel(latestWeekWithData)}</span>`;
+        infoEl.style.display = 'block';
+      } else {
+        infoEl.style.display = 'none';
+      }
+    }
+
+    function getTimeAgo(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+
+      if (diffMins < 60) return `${diffMins} min ago`;
+      if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+      if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function formatWeekLabel(weekDate) {
+      const date = parseISODate(weekDate);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
     function renderWeekTabs() {
       const tabsContainer = document.getElementById('weekTabs');
       tabsContainer.innerHTML = '';
 
-      availableWeeks.forEach((weekDate, index) => {
+      // Only show weeks with data, plus the current week (for potential new entry)
+      const weeksToShow = availableWeeks.filter((weekDate, index) => {
+        // Always show if it has data
+        if (weeksWithData[weekDate]?.hasData) return true;
+        // Show current week (index 0) even without data
+        if (index === 0) return true;
+        return false;
+      });
+
+      weeksToShow.forEach((weekDate) => {
+        const originalIndex = availableWeeks.indexOf(weekDate);
         const date = parseISODate(weekDate);
         const label = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const tab = document.createElement('button');
-        tab.className = 'week-tab' + (index === currentWeekIndex ? ' active' : '');
-        tab.textContent = 'Week of ' + label;
-        tab.onclick = () => loadWeek(index);
+
+        // Build class list
+        let classes = ['week-tab'];
+        if (originalIndex === currentWeekIndex) classes.push('active');
+        if (weeksWithData[weekDate]?.hasData) classes.push('has-data');
+        if (weekDate === latestWeekWithData) classes.push('latest');
+        if (!weeksWithData[weekDate]?.hasData && originalIndex !== 0) classes.push('no-data');
+
+        tab.className = classes.join(' ');
+
+        // Create tab content
+        let tabContent = 'Week of ' + label;
+
+        // Add "NEW" badge for the latest week with data
+        if (weekDate === latestWeekWithData && weeksWithData[weekDate]?.generatedAt) {
+          const genDate = new Date(weeksWithData[weekDate].generatedAt);
+          const hoursSince = (new Date() - genDate) / 3600000;
+          if (hoursSince < 48) {
+            tabContent += '<span class="updated-badge">New</span>';
+          }
+        }
+
+        tab.innerHTML = tabContent;
+        tab.onclick = () => loadWeek(originalIndex);
         tabsContainer.appendChild(tab);
       });
     }
@@ -1155,6 +1325,12 @@
         }
         const loadedWeek = await response.json();
         data = { ...loadedWeek, weekOf: loadedWeek.weekOf || weekDate };
+        // Update weeksWithData if we successfully loaded
+        weeksWithData[weekDate] = {
+          hasData: true,
+          generatedAt: loadedWeek.generated_at || null,
+          hasCoachSummary: !!(loadedWeek.coach_summary || loadedWeek.insights)
+        };
       } catch (e) {
         console.warn('Using embedded data for week', weekDate, e);
         data = getFallbackWeekData(weekDate);
@@ -1890,11 +2066,22 @@
     }
 
     // ===== INITIALIZATION =====
-    // Check admin role, show fallback data immediately, then try to load current week from file
+    // Check admin role, show fallback data immediately, then check available weeks and load
     checkAdminRole();
     renderWeekTabs();
     renderDashboard();
-    loadWeek(0);
+    // Check which weeks have data, then load the latest one
+    checkWeeksWithData().then(() => {
+      // Auto-select the latest week with data, or week 0 if none
+      if (latestWeekWithData) {
+        const latestIndex = availableWeeks.indexOf(latestWeekWithData);
+        if (latestIndex >= 0) {
+          loadWeek(latestIndex);
+        }
+      } else {
+        loadWeek(0);
+      }
+    });
   </script>
 </body>
 </html>
