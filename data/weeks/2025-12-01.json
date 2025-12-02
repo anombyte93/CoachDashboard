@@ -1,0 +1,99 @@
+{
+  "weekOf": "2025-12-01",
+  "measurements": {
+    "weight": 114.6,
+    "waist": null,
+    "chest": null,
+    "middle": null,
+    "butt": null,
+    "leg": null,
+    "steps": null
+  },
+  "training": {
+    "overall_performance": "Excellent - all weights increased significantly",
+    "completed": "3-4 sessions (coach-led program)",
+    "difficulty": "Stretching/warmup routines helping significantly",
+    "recovery": "Good resilience despite moderate recovery scores",
+    "enjoyment": "Feeling extremely fit and flexible"
+  },
+  "nutrition": {
+    "daily": [
+      { "day": "Mon", "calories": 2677, "protein": 132, "carbs": 298, "fat": 110 },
+      { "day": "Tue", "calories": 2709, "protein": 133, "carbs": 236, "fat": 138 },
+      { "day": "Wed", "calories": 2567, "protein": 116, "carbs": 288, "fat": 104 },
+      { "day": "Thu", "calories": 2720, "protein": 188, "carbs": 277, "fat": 112 },
+      { "day": "Fri", "calories": 3699, "protein": 227, "carbs": 293, "fat": 169 },
+      { "day": "Sat", "calories": 2304, "protein": 176, "carbs": 225, "fat": 83 },
+      { "day": "Sun", "calories": 2659, "protein": 231, "carbs": 226, "fat": 108 }
+    ],
+    "averages": {
+      "calories": 2762,
+      "protein": 172,
+      "carbs": 263,
+      "fat": 118
+    },
+    "targets": {
+      "calories": 2725,
+      "protein": 195,
+      "carbs": 295,
+      "fat": 85
+    },
+    "notes": "Protein 12% under target (172g vs 195g). Fat 39% over target (118g vs 85g). Consider shifting fat calories to lean protein sources. Weight stable at 114.6kg."
+  },
+  "whoop": {
+    "daily": [
+      { "day": "Mon", "hrv": 47, "rhr": 68, "sleep": 7.0, "strain": 15.0, "recovery": 87 },
+      { "day": "Tue", "hrv": 44, "rhr": 72, "sleep": 6.5, "strain": 13.4, "recovery": 81 },
+      { "day": "Wed", "hrv": 41, "rhr": 66, "sleep": 6.8, "strain": 16.4, "recovery": 67 },
+      { "day": "Thu", "hrv": 28, "rhr": 75, "sleep": 5.5, "strain": 16.2, "recovery": 27 },
+      { "day": "Fri", "hrv": 40, "rhr": 74, "sleep": 6.2, "strain": 15.0, "recovery": 71 },
+      { "day": "Sat", "hrv": 40, "rhr": 71, "sleep": 6.6, "strain": 15.2, "recovery": 67 },
+      { "day": "Sun", "hrv": 40, "rhr": 71, "sleep": 6.6, "strain": 15.2, "recovery": 67 }
+    ],
+    "averages": {
+      "hrv": 40,
+      "rhr": 71,
+      "sleep": 6.6,
+      "strain": 15.2,
+      "recovery": 67
+    },
+    "sleep_metrics": {
+      "avg_duration": 6.6,
+      "avg_efficiency": 90,
+      "avg_need": 7.5,
+      "avg_debt": 30,
+      "consistency": 70
+    },
+    "interpretation": "Moderate recovery (67%) with one low day (27% Thu). HRV at 40ms baseline. Sleep averaging 6.6hrs - below optimal 7-8hr target. Good resilience shown by quick bounce-back from low recovery. Prioritize adding 30+ min sleep."
+  },
+  "wellbeing": {
+    "pain": "Moderate (4/10) - normal training soreness",
+    "appetite": "Good - normal appetite",
+    "cravings": "None noted",
+    "stress": "Very low (1/10) - relaxed week",
+    "mood": "Okay (5/10) - neutral",
+    "recovery_outside_gym": "Good - stretching routine paying off",
+    "lifestyle_factors": "Low stress contributing to good training performance"
+  },
+  "wins": [
+    "All weights increased significantly",
+    "Stretching and warmup routines showing major benefits",
+    "Feeling extremely fit and flexible",
+    "Good stress management"
+  ],
+  "coach_questions": "",
+  "insights": {
+    "readiness": "Good",
+    "fatigue_risk": "Low-Moderate",
+    "recovery_notes": "Moderate recovery average (67%) but excellent training performance suggests good resilience",
+    "nutrition_notes": "Fat intake high, protein under target - opportunity to optimize macro split",
+    "sleep_notes": "6.6 hrs average is the main limiter"
+  },
+  "recommendations": [
+    "Prioritize sleep duration - target 7+ hours",
+    "Shift ~200-300 kcal from fats to lean protein to hit 195g target",
+    "Maintain current stretching/warmup routine - it's working",
+    "Monitor recovery trend - if 2+ consecutive days <50%, add rest",
+    "Trust the process - weights increasing is excellent progress"
+  ]
+}

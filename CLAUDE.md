@@ -53,13 +53,68 @@
 - **Cause**: JS error before `checkAdminRole()` runs, or session role !== 'admin'
 - **Debug**: Browser console for errors, check `localStorage.getItem('coachDashboardSession')`
 
-### Slash Command
-- `/coach-checkin` - Interactive weekly check-in via Claude terminal
-- Located at `~/.claude/commands/coach-checkin.md`
-- Collects WHOOP, nutrition, wellbeing, training data
-- Generates AI insights and saves JSON to `data/weeks/`
+### Slash Command: `/coach-checkin`
+
+**Automated Weekly Check-in Workflow**
+
+Located at `~/.claude/commands/coach-checkin.md`
+
+**Weekly Workflow:**
+1. Export WHOOP/MacroFactor → email to self
+2. Run `/coach-checkin` in Claude Code
+3. Auto-imports data from Gmail via MCP
+4. Answer wellbeing/training questions (form-based)
+5. AI generates coach summary with insights
+6. Data saved to dashboard (validated automatically)
+7. Optional: Email notification to coach
+
+**Helper Scripts** at `~/.claude/scripts/coach-checkin/`:
+| Script | Purpose |
+|--------|---------|
+| `fetch-whoop.sh` | Gmail MCP instructions for WHOOP export |
+| `fetch-macrofactor.sh` | Gmail MCP instructions for MacroFactor |
+| `aggregate-metrics.py` | Combines all data into dashboard JSON |
+| `validate-dashboard.sh` | Validates JSON schema (auto-fixes issues) |
+| `send-coach-email.sh` | Generates coach notification email |
+
+**Data Files:**
+- Weekly data: `data/weeks/YYYY-MM-DD.json` and `v2/data/weeks/YYYY-MM-DD.json`
+- Coach config: `data/coach-config.json` (email, notifications_enabled)
+
+**Dashboard Features:**
+- AI Coach Summary section displays insights, risk flags, recommendations
+- Traffic light indicators for key metrics
+- Auto-generated interpretation of WHOOP/nutrition data
 
 ### Training Data Export Research (Dec 2025)
 - **TrainHeroic**: NO export capability (closed system)
 - **Liftoff**: NO export capability (closed system)
 - Both require manual data entry - no programmatic import possible
+
+### JSON Schema Reference
+
+Weekly data files must include:
+```json
+{
+  "weekOf": "YYYY-MM-DD",
+  "measurements": { "weight": N, ... },
+  "training": { "overall_performance": "...", ... },
+  "nutrition": { "daily": [...], "averages": {...}, "targets": {...} },
+  "whoop": { "daily": [...], "averages": {...}, "interpretation": "..." },
+  "wellbeing": { "pain": "...", "stress": "...", ... },
+  "wins": ["...", ...],
+  "coach_summary": {
+    "executive_summary": "...",
+    "risk_flags": ["...", ...],
+    "recommendations": ["...", ...]
+  },
+  "insights": {
+    "readiness": "Good/Moderate/Poor",
+    "fatigue_risk": "Low/Moderate/High",
+    "recovery_notes": "...",
+    "nutrition_notes": "...",
+    "sleep_notes": "..."
+  },
+  "recommendations": ["...", ...]
+}
+```

@@ -481,6 +481,183 @@
     .print-footer {
       display: none;
     }
+
+    /* Coach Summary Styles */
+    .coach-summary-section {
+      margin-top: 1.5rem;
+    }
+
+    .coach-summary-grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 768px) {
+      .coach-summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1200px) {
+      .coach-summary-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .summary-card-full {
+      grid-column: 1 / -1;
+    }
+
+    .executive-summary {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--gray-800);
+    }
+
+    .risk-flags-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .risk-flags-list li {
+      padding: 0.75rem 1rem;
+      margin-bottom: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+
+    .risk-flags-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    .risk-flag-warning {
+      background: rgba(234, 179, 8, 0.15);
+      border-left: 3px solid var(--yellow);
+      color: var(--gray-800);
+    }
+
+    .risk-flag-danger {
+      background: rgba(239, 68, 68, 0.15);
+      border-left: 3px solid var(--red);
+      color: var(--gray-800);
+    }
+
+    .risk-flag-icon {
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .recommendations-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      counter-reset: recommendation;
+    }
+
+    .recommendations-list li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 0.875rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .recommendations-list li:last-child {
+      border-bottom: none;
+    }
+
+    .recommendations-list li::before {
+      counter-increment: recommendation;
+      content: counter(recommendation);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      background: var(--blue);
+      color: white;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .insight-metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .insight-metric:last-child {
+      border-bottom: none;
+    }
+
+    .insight-metric-label {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+    }
+
+    .insight-metric-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      padding: 0.25rem 0.75rem;
+      border-radius: 999px;
+    }
+
+    .insight-value-good {
+      background: rgba(34, 197, 94, 0.15);
+      color: #15803d;
+    }
+
+    .insight-value-moderate {
+      background: rgba(234, 179, 8, 0.15);
+      color: #a16207;
+    }
+
+    .insight-value-poor {
+      background: rgba(239, 68, 68, 0.15);
+      color: #dc2626;
+    }
+
+    .insight-notes {
+      font-size: 0.875rem;
+      color: var(--gray-600);
+      line-height: 1.5;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .insight-notes:last-child {
+      border-bottom: none;
+    }
+
+    .insight-notes-label {
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.25rem;
+    }
+
+    .no-summary-message {
+      text-align: center;
+      padding: 2rem;
+      color: var(--gray-600);
+      font-size: 0.875rem;
+    }
+
+    .no-summary-message svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 0.75rem;
+      opacity: 0.5;
+    }
   </style>
 </head>
 <body>
@@ -658,6 +835,36 @@
       <div class="card">
         <h2>Questions for Coach</h2>
         <div class="notes-section" id="coachQuestions"></div>
+      </div>
+    </div>
+
+    <!-- AI Coach Summary Section -->
+    <div class="coach-summary-section" id="coachSummarySection">
+      <h3 class="section-title">AI Coach Summary</h3>
+      <div class="coach-summary-grid" id="coachSummaryGrid">
+        <!-- Executive Summary -->
+        <div class="card summary-card-full" id="executiveSummaryCard">
+          <h2>Executive Summary</h2>
+          <p class="executive-summary" id="executiveSummary"></p>
+        </div>
+
+        <!-- Risk Flags -->
+        <div class="card" id="riskFlagsCard">
+          <h2>Risk Flags</h2>
+          <ul class="risk-flags-list" id="riskFlagsList"></ul>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="card" id="recommendationsCard">
+          <h2>Recommendations</h2>
+          <ol class="recommendations-list" id="recommendationsList"></ol>
+        </div>
+
+        <!-- Insights -->
+        <div class="card" id="insightsCard">
+          <h2>Performance Insights</h2>
+          <div id="insightsContent"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1454,7 +1661,213 @@
         }
       }]
     });
+
+    // ===== COACH SUMMARY RENDERING =====
+    renderCoachSummary();
     } // End of renderDashboard function
+
+    // Coach Summary rendering function
+    function renderCoachSummary() {
+      const summarySection = document.getElementById('coachSummarySection');
+      const executiveSummaryCard = document.getElementById('executiveSummaryCard');
+      const riskFlagsCard = document.getElementById('riskFlagsCard');
+      const recommendationsCard = document.getElementById('recommendationsCard');
+      const insightsCard = document.getElementById('insightsCard');
+
+      // Clear previous content
+      document.getElementById('executiveSummary').innerHTML = '';
+      document.getElementById('riskFlagsList').innerHTML = '';
+      document.getElementById('recommendationsList').innerHTML = '';
+      document.getElementById('insightsContent').innerHTML = '';
+
+      // Check if we have any AI summary data
+      const hasCoachSummary = data.coach_summary &&
+        (data.coach_summary.executive_summary || data.coach_summary.risk_flags?.length || data.coach_summary.recommendations?.length);
+      const hasInsights = data.insights &&
+        (data.insights.readiness || data.insights.fatigue_risk || data.insights.recovery_notes || data.insights.nutrition_notes || data.insights.sleep_notes);
+      const hasRecommendations = data.recommendations && data.recommendations.length > 0;
+
+      // If no summary data at all, show message and hide section
+      if (!hasCoachSummary && !hasInsights && !hasRecommendations) {
+        summarySection.innerHTML = `
+          <h3 class="section-title">AI Coach Summary</h3>
+          <div class="card">
+            <div class="no-summary-message">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+              </svg>
+              <p>No AI summary available for this week</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Restore the grid structure if it was replaced with no-summary message
+      if (!document.getElementById('coachSummaryGrid')) {
+        summarySection.innerHTML = `
+          <h3 class="section-title">AI Coach Summary</h3>
+          <div class="coach-summary-grid" id="coachSummaryGrid">
+            <div class="card summary-card-full" id="executiveSummaryCard">
+              <h2>Executive Summary</h2>
+              <p class="executive-summary" id="executiveSummary"></p>
+            </div>
+            <div class="card" id="riskFlagsCard">
+              <h2>Risk Flags</h2>
+              <ul class="risk-flags-list" id="riskFlagsList"></ul>
+            </div>
+            <div class="card" id="recommendationsCard">
+              <h2>Recommendations</h2>
+              <ol class="recommendations-list" id="recommendationsList"></ol>
+            </div>
+            <div class="card" id="insightsCard">
+              <h2>Performance Insights</h2>
+              <div id="insightsContent"></div>
+            </div>
+          </div>
+        `;
+      }
+
+      // Executive Summary - from coach_summary or generate from insights
+      const execSummaryEl = document.getElementById('executiveSummary');
+      const execCard = document.getElementById('executiveSummaryCard');
+      if (data.coach_summary?.executive_summary) {
+        execSummaryEl.textContent = data.coach_summary.executive_summary;
+        execCard.style.display = '';
+      } else if (hasInsights) {
+        // Generate a summary from insights
+        const parts = [];
+        if (data.insights.readiness) parts.push(`Readiness: ${data.insights.readiness}.`);
+        if (data.insights.fatigue_risk) parts.push(`Fatigue risk: ${data.insights.fatigue_risk}.`);
+        if (data.insights.recovery_notes) parts.push(data.insights.recovery_notes);
+        execSummaryEl.textContent = parts.join(' ') || 'Summary not available.';
+        execCard.style.display = '';
+      } else {
+        execCard.style.display = 'none';
+      }
+
+      // Risk Flags - from coach_summary
+      const riskList = document.getElementById('riskFlagsList');
+      const riskCard = document.getElementById('riskFlagsCard');
+      const riskFlags = data.coach_summary?.risk_flags || [];
+      if (riskFlags.length > 0) {
+        riskFlags.forEach(flag => {
+          const li = document.createElement('li');
+          // Determine severity - look for keywords
+          const isDanger = /critical|severe|danger|urgent|overtraining|injury/i.test(flag);
+          li.className = isDanger ? 'risk-flag-danger' : 'risk-flag-warning';
+          li.innerHTML = `<span class="risk-flag-icon">${isDanger ? '🚨' : '⚠️'}</span><span>${escapeHtml(flag)}</span>`;
+          riskList.appendChild(li);
+        });
+        riskCard.style.display = '';
+      } else {
+        // Show a "no risk flags" message
+        riskList.innerHTML = '<li class="risk-flag-warning" style="background: rgba(34, 197, 94, 0.15); border-left-color: var(--green);"><span class="risk-flag-icon">✅</span><span>No significant risk flags this week</span></li>';
+        riskCard.style.display = '';
+      }
+
+      // Recommendations - from coach_summary or root recommendations
+      const recList = document.getElementById('recommendationsList');
+      const recCard = document.getElementById('recommendationsCard');
+      const recommendations = data.coach_summary?.recommendations || data.recommendations || [];
+      if (recommendations.length > 0) {
+        recommendations.forEach(rec => {
+          const li = document.createElement('li');
+          li.innerHTML = `<span>${escapeHtml(rec)}</span>`;
+          recList.appendChild(li);
+        });
+        recCard.style.display = '';
+      } else {
+        recCard.style.display = 'none';
+      }
+
+      // Insights - from insights object
+      const insightsContent = document.getElementById('insightsContent');
+      const insCard = document.getElementById('insightsCard');
+      if (hasInsights) {
+        let html = '';
+
+        // Readiness metric
+        if (data.insights.readiness) {
+          const readinessClass = getInsightValueClass(data.insights.readiness);
+          html += `
+            <div class="insight-metric">
+              <span class="insight-metric-label">Readiness</span>
+              <span class="insight-metric-value ${readinessClass}">${escapeHtml(data.insights.readiness)}</span>
+            </div>
+          `;
+        }
+
+        // Fatigue Risk metric
+        if (data.insights.fatigue_risk) {
+          const fatigueClass = getInsightValueClass(data.insights.fatigue_risk, true);
+          html += `
+            <div class="insight-metric">
+              <span class="insight-metric-label">Fatigue Risk</span>
+              <span class="insight-metric-value ${fatigueClass}">${escapeHtml(data.insights.fatigue_risk)}</span>
+            </div>
+          `;
+        }
+
+        // Notes sections
+        if (data.insights.recovery_notes) {
+          html += `
+            <div class="insight-notes">
+              <div class="insight-notes-label">Recovery</div>
+              ${escapeHtml(data.insights.recovery_notes)}
+            </div>
+          `;
+        }
+
+        if (data.insights.nutrition_notes) {
+          html += `
+            <div class="insight-notes">
+              <div class="insight-notes-label">Nutrition</div>
+              ${escapeHtml(data.insights.nutrition_notes)}
+            </div>
+          `;
+        }
+
+        if (data.insights.sleep_notes) {
+          html += `
+            <div class="insight-notes">
+              <div class="insight-notes-label">Sleep</div>
+              ${escapeHtml(data.insights.sleep_notes)}
+            </div>
+          `;
+        }
+
+        insightsContent.innerHTML = html;
+        insCard.style.display = '';
+      } else {
+        insCard.style.display = 'none';
+      }
+    }
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Helper function to determine insight value class
+    function getInsightValueClass(value, isRisk = false) {
+      const lowerValue = value.toLowerCase();
+      if (isRisk) {
+        // For risk, "low" is good, "high" is bad
+        if (/low|minimal|none/i.test(lowerValue)) return 'insight-value-good';
+        if (/moderate|medium|low-moderate/i.test(lowerValue)) return 'insight-value-moderate';
+        if (/high|elevated|significant|severe/i.test(lowerValue)) return 'insight-value-poor';
+      } else {
+        // For positive metrics like readiness
+        if (/good|excellent|high|optimal|strong/i.test(lowerValue)) return 'insight-value-good';
+        if (/moderate|fair|ok|okay|average/i.test(lowerValue)) return 'insight-value-moderate';
+        if (/poor|low|weak|bad|needs attention/i.test(lowerValue)) return 'insight-value-poor';
+      }
+      return 'insight-value-moderate'; // default
+    }
 
     // ===== AUTH FUNCTIONS =====
     function logout() {
