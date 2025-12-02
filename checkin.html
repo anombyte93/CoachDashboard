@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Check-In - Coach Dashboard</title>
+  <style>
+    :root {
+      --green: #22c55e;
+      --blue: #3b82f6;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --purple: #8b5cf6;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-600: #4b5563;
+      --gray-800: #1f2937;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--gray-100);
+      color: var(--gray-800);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d5a87 100%);
+      color: white;
+      padding: 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .header p { opacity: 0.8; font-size: 0.875rem; }
+
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.1);
+      font-size: 0.875rem;
+      transition: background 0.2s;
+    }
+
+    .nav a:hover { background: rgba(255,255,255,0.2); }
+    .nav a.active { background: rgba(255,255,255,0.3); }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Progress Steps */
+    .progress-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+
+    .progress-bar::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gray-200);
+      transform: translateY(-50%);
+      z-index: 0;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      z-index: 1;
+      background: var(--gray-100);
+      padding: 0 0.5rem;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--gray-200);
+      color: var(--gray-600);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .step.active .step-number { background: var(--blue); color: white; }
+    .step.completed .step-number { background: var(--green); color: white; }
+
+    .step-label {
+      font-size: 0.75rem;
+      color: var(--gray-600);
+      text-transform: uppercase;
+    }
+
+    /* Form Sections */
+    .section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .section.active { display: block; }
+
+    .section h2 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--gray-200);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .section h2 .icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+    }
+
+    /* Form Elements */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 0.625rem 0.875rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 0.75rem;
+      color: var(--gray-600);
+    }
+
+    /* Rating Scale */
+    .rating-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .rating-btn {
+      width: 44px;
+      height: 44px;
+      border: 2px solid var(--gray-200);
+      border-radius: 8px;
+      background: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .rating-btn:hover { border-color: var(--blue); }
+    .rating-btn.selected { background: var(--blue); color: white; border-color: var(--blue); }
+
+    /* Day Tabs */
+    .day-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .day-tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .day-tab:hover { border-color: var(--blue); }
+    .day-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
+    .day-tab.filled { background: var(--green); color: white; border-color: var(--green); }
+
+    /* Navigation Buttons */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--gray-200);
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary { background: var(--blue); color: white; }
+    .btn-primary:hover { background: #2563eb; }
+    .btn-secondary { background: var(--gray-200); color: var(--gray-800); }
+    .btn-secondary:hover { background: #d1d5db; }
+    .btn-success { background: var(--green); color: white; }
+    .btn-success:hover { background: #16a34a; }
+
+    /* Output Section */
+    .output-section {
+      background: var(--gray-800);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .output-section h3 {
+      color: white;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .output-section pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.8125rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .copy-btn {
+      background: var(--green);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .copy-btn:hover { background: #16a34a; }
+
+    /* Wins List */
+    .wins-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .win-item {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .win-item input {
+      flex: 1;
+    }
+
+    .win-item button {
+      padding: 0.5rem;
+      border: none;
+      background: var(--red);
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .add-win-btn {
+      background: var(--green);
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .container { padding: 1rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .progress-bar { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Weekly Check-In</h1>
+    <p>Fill in your data for your coach</p>
+    <nav class="nav">
+      <a href="index.html">Dashboard</a>
+      <a href="checkin.html" class="active">Check-In</a>
+      <a href="v2/admin.html">Admin</a>
+    </nav>
+  </div>
+
+  <div class="container">
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="step active" data-step="1">
+        <div class="step-number">1</div>
+        <span class="step-label">Basics</span>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step-number">2</div>
+        <span class="step-label">WHOOP</span>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step-number">3</div>
+        <span class="step-label">Nutrition</span>
+      </div>
+      <div class="step" data-step="4">
+        <div class="step-number">4</div>
+        <span class="step-label">Training</span>
+      </div>
+      <div class="step" data-step="5">
+        <div class="step-number">5</div>
+        <span class="step-label">Wellbeing</span>
+      </div>
+      <div class="step" data-step="6">
+        <div class="step-number">6</div>
+        <span class="step-label">Review</span>
+      </div>
+    </div>
+
+    <!-- Step 1: Basics -->
+    <div class="section active" data-section="1">
+      <h2><span class="icon" style="background: var(--blue);">📅</span> Basic Info & Measurements</h2>
+
+      <div class="form-group">
+        <label>Week Starting (Monday)</label>
+        <input type="date" id="weekOf">
+      </div>
+
+      <h3 style="margin: 1.5rem 0 1rem; font-size: 1rem;">Body Measurements</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Weight (kg)</label>
+          <input type="number" id="weight" step="0.1" placeholder="e.g., 85.5">
+        </div>
+        <div class="form-group">
+          <label>Waist (cm)</label>
+          <input type="number" id="waist" step="0.1" placeholder="e.g., 86">
+        </div>
+        <div class="form-group">
+          <label>Chest (cm)</label>
+          <input type="number" id="chest" step="0.1" placeholder="e.g., 105">
+        </div>
+        <div class="form-group">
+          <label>Middle/Belly (cm)</label>
+          <input type="number" id="middle" step="0.1" placeholder="e.g., 95">
+        </div>
+        <div class="form-group">
+          <label>Butt (cm)</label>
+          <input type="number" id="butt" step="0.1" placeholder="e.g., 100">
+        </div>
+        <div class="form-group">
+          <label>Leg/Thigh (cm)</label>
+          <input type="number" id="leg" step="0.1" placeholder="e.g., 60">
+        </div>
+        <div class="form-group">
+          <label>Total Weekly Steps</label>
+          <input type="number" id="steps" placeholder="e.g., 56000">
+        </div>
+      </div>
+
+      <div class="nav-buttons">
+        <div></div>
+        <button class="btn btn-primary" onclick="nextStep()">Next: WHOOP Data →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: WHOOP -->
+    <div class="section" data-section="2">
+      <h2><span class="icon" style="background: var(--purple);">💓</span> WHOOP Data</h2>
+      <p style="margin-bottom: 1rem; color: var(--gray-600); font-size: 0.875rem;">
+        Enter your daily WHOOP metrics. Click each day to fill in.
+      </p>
+
+      <div class="day-tabs" id="whoopDayTabs">
+        <button class="day-tab active" data-day="0">Mon</button>
+        <button class="day-tab" data-day="1">Tue</button>
+        <button class="day-tab" data-day="2">Wed</button>
+        <button class="day-tab" data-day="3">Thu</button>
+        <button class="day-tab" data-day="4">Fri</button>
+        <button class="day-tab" data-day="5">Sat</button>
+        <button class="day-tab" data-day="6">Sun</button>
+      </div>
+
+      <div id="whoopDayForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>HRV (ms)</label>
+            <input type="number" id="whoop_hrv" placeholder="e.g., 45">
+            <small>Heart Rate Variability</small>
+          </div>
+          <div class="form-group">
+            <label>RHR (bpm)</label>
+            <input type="number" id="whoop_rhr" placeholder="e.g., 55">
+            <small>Resting Heart Rate</small>
+          </div>
+          <div class="form-group">
+            <label>Sleep (hours)</label>
+            <input type="number" id="whoop_sleep" step="0.1" placeholder="e.g., 7.5">
+          </div>
+          <div class="form-group">
+            <label>Strain</label>
+            <input type="number" id="whoop_strain" step="0.1" placeholder="e.g., 12.5">
+            <small>0-21 scale</small>
+          </div>
+          <div class="form-group">
+            <label>Recovery %</label>
+            <input type="number" id="whoop_recovery" min="0" max="100" placeholder="e.g., 65">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 1.5rem;">
+        <label>WHOOP Interpretation (optional)</label>
+        <textarea id="whoopInterpretation" placeholder="Your analysis of the week's recovery data..."></textarea>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Next: Nutrition →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Nutrition -->
+    <div class="section" data-section="3">
+      <h2><span class="icon" style="background: var(--green);">🥗</span> Nutrition Data</h2>
+      <p style="margin-bottom: 1rem; color: var(--gray-600); font-size: 0.875rem;">
+        Enter your daily nutrition from MacroFactor or similar app.
+      </p>
+
+      <div class="day-tabs" id="nutritionDayTabs">
+        <button class="day-tab active" data-day="0">Mon</button>
+        <button class="day-tab" data-day="1">Tue</button>
+        <button class="day-tab" data-day="2">Wed</button>
+        <button class="day-tab" data-day="3">Thu</button>
+        <button class="day-tab" data-day="4">Fri</button>
+        <button class="day-tab" data-day="5">Sat</button>
+        <button class="day-tab" data-day="6">Sun</button>
+      </div>
+
+      <div id="nutritionDayForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Calories</label>
+            <input type="number" id="nutrition_calories" placeholder="e.g., 2500">
+          </div>
+          <div class="form-group">
+            <label>Protein (g)</label>
+            <input type="number" id="nutrition_protein" placeholder="e.g., 180">
+          </div>
+          <div class="form-group">
+            <label>Carbs (g)</label>
+            <input type="number" id="nutrition_carbs" placeholder="e.g., 250">
+          </div>
+          <div class="form-group">
+            <label>Fat (g)</label>
+            <input type="number" id="nutrition_fat" placeholder="e.g., 80">
+          </div>
+        </div>
+      </div>
+
+      <h3 style="margin: 1.5rem 0 1rem; font-size: 1rem;">Targets</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Target Calories</label>
+          <input type="number" id="targetCalories" value="2725">
+        </div>
+        <div class="form-group">
+          <label>Target Protein (g)</label>
+          <input type="number" id="targetProtein" value="195">
+        </div>
+        <div class="form-group">
+          <label>Target Carbs (g)</label>
+          <input type="number" id="targetCarbs" value="314">
+        </div>
+        <div class="form-group">
+          <label>Target Fat (g)</label>
+          <input type="number" id="targetFat" value="102">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Nutrition Notes</label>
+        <textarea id="nutritionNotes" placeholder="How was your nutrition this week? Any challenges or wins?"></textarea>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Next: Training →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Training -->
+    <div class="section" data-section="4">
+      <h2><span class="icon" style="background: var(--orange);">💪</span> Training Summary</h2>
+
+      <div class="form-group">
+        <label>Overall Performance</label>
+        <input type="text" id="trainingPerformance" placeholder="e.g., Good energy, strong sessions">
+      </div>
+
+      <div class="form-group">
+        <label>Workouts Completed</label>
+        <input type="text" id="trainingCompleted" placeholder="e.g., 4 workouts (skipped cardio)">
+      </div>
+
+      <div class="form-group">
+        <label>Difficulties / Challenges</label>
+        <input type="text" id="trainingDifficulty" placeholder="e.g., Squats felt tight, lower back sore">
+      </div>
+
+      <div class="form-group">
+        <label>Recovery Between Sessions</label>
+        <input type="text" id="trainingRecovery" placeholder="e.g., Good but sore">
+      </div>
+
+      <div class="form-group">
+        <label>Enjoyment Level</label>
+        <input type="text" id="trainingEnjoyment" placeholder="e.g., Loved it / Felt like a chore">
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Next: Wellbeing →</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Wellbeing -->
+    <div class="section" data-section="5">
+      <h2><span class="icon" style="background: var(--yellow);">🧠</span> Health & Wellbeing</h2>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Pain / Discomfort</label>
+          <select id="wellbeingPain">
+            <option value="">Select...</option>
+            <option value="None - feeling great">None - feeling great</option>
+            <option value="Minor soreness - normal training">Minor soreness - normal training</option>
+            <option value="Moderate pain - limiting some activities">Moderate pain - limiting activities</option>
+            <option value="Significant pain - needs attention">Significant pain - needs attention</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Appetite</label>
+          <select id="wellbeingAppetite">
+            <option value="">Select...</option>
+            <option value="Good - normal appetite">Good - normal appetite</option>
+            <option value="High - very hungry">High - very hungry</option>
+            <option value="Low - not very hungry">Low - not very hungry</option>
+            <option value="Irregular - varies a lot">Irregular - varies a lot</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Cravings</label>
+          <select id="wellbeingCravings">
+            <option value="">Select...</option>
+            <option value="None - no cravings">None - no cravings</option>
+            <option value="Some cravings for sugar/junk">Some cravings for sugar/junk</option>
+            <option value="Strong cravings - hard to resist">Strong cravings - hard to resist</option>
+            <option value="Cravings for specific foods">Cravings for specific foods</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Stress Level</label>
+          <select id="wellbeingStress">
+            <option value="">Select...</option>
+            <option value="Low - feeling calm">Low - feeling calm</option>
+            <option value="Moderate - manageable">Moderate - manageable</option>
+            <option value="High - affecting daily life">High - affecting daily life</option>
+            <option value="Very high - overwhelmed">Very high - overwhelmed</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Mood</label>
+          <select id="wellbeingMood">
+            <option value="">Select...</option>
+            <option value="Great - positive and motivated">Great - positive and motivated</option>
+            <option value="Good - generally positive">Good - generally positive</option>
+            <option value="Okay - neutral">Okay - neutral</option>
+            <option value="Low - struggling">Low - struggling</option>
+            <option value="Anxious/stressed - mind racing">Anxious/stressed - mind racing</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Recovery Outside Gym</label>
+          <select id="wellbeingRecovery">
+            <option value="">Select...</option>
+            <option value="Excellent - stretching, massage, etc">Excellent - stretching, massage, etc</option>
+            <option value="Good - did recovery work">Good - did some recovery</option>
+            <option value="Minimal - not much time">Minimal - not much time</option>
+            <option value="None - no recovery activities">None - no recovery activities</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Lifestyle Factors This Week</label>
+        <textarea id="wellbeingLifestyle" placeholder="e.g., Travel, social events, work stress, poor sleep routine..."></textarea>
+      </div>
+
+      <h3 style="margin: 1.5rem 0 1rem; font-size: 1rem;">Wins This Week 🎉</h3>
+      <div class="wins-list" id="winsList">
+        <div class="win-item">
+          <input type="text" class="win-input" placeholder="e.g., Hit protein target 5 days">
+        </div>
+      </div>
+      <button class="add-win-btn" onclick="addWin()">+ Add Another Win</button>
+
+      <div class="form-group" style="margin-top: 1.5rem;">
+        <label>Questions for Your Coach</label>
+        <textarea id="coachQuestions" placeholder="What do you want to discuss? Any questions about training, nutrition, or recovery?"></textarea>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-success" onclick="nextStep()">Review & Generate →</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Review & Export -->
+    <div class="section" data-section="6">
+      <h2><span class="icon" style="background: var(--green);">✅</span> Review & Export</h2>
+
+      <p style="margin-bottom: 1rem; color: var(--gray-600);">
+        Review your data below. Copy the JSON and update your dashboard, or download as a file.
+      </p>
+
+      <div class="output-section">
+        <h3>
+          Generated JSON
+          <div>
+            <button class="copy-btn" onclick="copyJSON()">📋 Copy</button>
+            <button class="copy-btn" style="margin-left: 0.5rem; background: var(--blue);" onclick="downloadJSON()">⬇️ Download</button>
+          </div>
+        </h3>
+        <pre id="jsonOutput">Loading...</pre>
+      </div>
+
+      <div style="margin-top: 1.5rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid var(--yellow);">
+        <strong>Next Steps:</strong>
+        <ol style="margin-top: 0.5rem; margin-left: 1.25rem; font-size: 0.875rem;">
+          <li>Copy the JSON above</li>
+          <li>Replace the data in <code>index.html</code> (inside the <code>&lt;script id="dashboardData"&gt;</code> tag)</li>
+          <li>Commit and push to GitHub</li>
+          <li>Your coach will see the updated dashboard!</li>
+        </ol>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back to Edit</button>
+        <button class="btn btn-primary" onclick="saveToLocalStorage()">💾 Save Locally</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentStep = 1;
+    let currentWhoopDay = 0;
+    let currentNutritionDay = 0;
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    // Data storage
+    const whoopData = Array(7).fill(null).map(() => ({ hrv: '', rhr: '', sleep: '', strain: '', recovery: '' }));
+    const nutritionData = Array(7).fill(null).map(() => ({ calories: '', protein: '', carbs: '', fat: '' }));
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set default week date to this Monday
+      const today = new Date();
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - today.getDay() + 1);
+      document.getElementById('weekOf').value = monday.toISOString().split('T')[0];
+
+      // Load from localStorage if exists
+      loadFromLocalStorage();
+
+      // Setup day tabs
+      setupDayTabs();
+      updateJSON();
+    });
+
+    function setupDayTabs() {
+      // WHOOP day tabs
+      document.querySelectorAll('#whoopDayTabs .day-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          saveCurrentWhoopDay();
+          currentWhoopDay = parseInt(tab.dataset.day);
+          document.querySelectorAll('#whoopDayTabs .day-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          loadWhoopDay(currentWhoopDay);
+        });
+      });
+
+      // Nutrition day tabs
+      document.querySelectorAll('#nutritionDayTabs .day-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          saveCurrentNutritionDay();
+          currentNutritionDay = parseInt(tab.dataset.day);
+          document.querySelectorAll('#nutritionDayTabs .day-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          loadNutritionDay(currentNutritionDay);
+        });
+      });
+    }
+
+    function saveCurrentWhoopDay() {
+      whoopData[currentWhoopDay] = {
+        hrv: document.getElementById('whoop_hrv').value,
+        rhr: document.getElementById('whoop_rhr').value,
+        sleep: document.getElementById('whoop_sleep').value,
+        strain: document.getElementById('whoop_strain').value,
+        recovery: document.getElementById('whoop_recovery').value
+      };
+      updateDayTabStatus('whoopDayTabs', currentWhoopDay, whoopData[currentWhoopDay]);
+    }
+
+    function loadWhoopDay(day) {
+      const data = whoopData[day];
+      document.getElementById('whoop_hrv').value = data.hrv || '';
+      document.getElementById('whoop_rhr').value = data.rhr || '';
+      document.getElementById('whoop_sleep').value = data.sleep || '';
+      document.getElementById('whoop_strain').value = data.strain || '';
+      document.getElementById('whoop_recovery').value = data.recovery || '';
+    }
+
+    function saveCurrentNutritionDay() {
+      nutritionData[currentNutritionDay] = {
+        calories: document.getElementById('nutrition_calories').value,
+        protein: document.getElementById('nutrition_protein').value,
+        carbs: document.getElementById('nutrition_carbs').value,
+        fat: document.getElementById('nutrition_fat').value
+      };
+      updateDayTabStatus('nutritionDayTabs', currentNutritionDay, nutritionData[currentNutritionDay]);
+    }
+
+    function loadNutritionDay(day) {
+      const data = nutritionData[day];
+      document.getElementById('nutrition_calories').value = data.calories || '';
+      document.getElementById('nutrition_protein').value = data.protein || '';
+      document.getElementById('nutrition_carbs').value = data.carbs || '';
+      document.getElementById('nutrition_fat').value = data.fat || '';
+    }
+
+    function updateDayTabStatus(tabsId, day, data) {
+      const tab = document.querySelector(`#${tabsId} .day-tab[data-day="${day}"]`);
+      const hasData = Object.values(data).some(v => v !== '' && v !== null);
+      if (hasData) {
+        tab.classList.add('filled');
+      } else {
+        tab.classList.remove('filled');
+      }
+    }
+
+    function nextStep() {
+      // Save current data
+      if (currentStep === 2) saveCurrentWhoopDay();
+      if (currentStep === 3) saveCurrentNutritionDay();
+
+      if (currentStep < 6) {
+        document.querySelector(`.section[data-section="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('completed');
+
+        currentStep++;
+
+        document.querySelector(`.section[data-section="${currentStep}"]`).classList.add('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+
+        if (currentStep === 6) {
+          updateJSON();
+        }
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        document.querySelector(`.section[data-section="${currentStep}"]`).classList.remove('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('active');
+
+        currentStep--;
+
+        document.querySelector(`.section[data-section="${currentStep}"]`).classList.add('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.add('active');
+        document.querySelector(`.step[data-step="${currentStep}"]`).classList.remove('completed');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function addWin() {
+      const winsList = document.getElementById('winsList');
+      const div = document.createElement('div');
+      div.className = 'win-item';
+      div.innerHTML = `
+        <input type="text" class="win-input" placeholder="Another win...">
+        <button onclick="this.parentElement.remove()">✕</button>
+      `;
+      winsList.appendChild(div);
+    }
+
+    function getWins() {
+      const wins = [];
+      document.querySelectorAll('.win-input').forEach(input => {
+        if (input.value.trim()) {
+          wins.push(input.value.trim());
+        }
+      });
+      return wins;
+    }
+
+    function generateData() {
+      // Save current day data
+      saveCurrentWhoopDay();
+      saveCurrentNutritionDay();
+
+      // Calculate averages
+      const whoopAvg = {
+        hrv: Math.round(whoopData.filter(d => d.hrv).reduce((sum, d) => sum + parseFloat(d.hrv || 0), 0) / whoopData.filter(d => d.hrv).length) || 0,
+        rhr: Math.round(whoopData.filter(d => d.rhr).reduce((sum, d) => sum + parseFloat(d.rhr || 0), 0) / whoopData.filter(d => d.rhr).length) || 0,
+        sleep: parseFloat((whoopData.filter(d => d.sleep).reduce((sum, d) => sum + parseFloat(d.sleep || 0), 0) / whoopData.filter(d => d.sleep).length).toFixed(1)) || 0,
+        strain: parseFloat((whoopData.filter(d => d.strain).reduce((sum, d) => sum + parseFloat(d.strain || 0), 0) / whoopData.filter(d => d.strain).length).toFixed(1)) || 0,
+        recovery: Math.round(whoopData.filter(d => d.recovery).reduce((sum, d) => sum + parseFloat(d.recovery || 0), 0) / whoopData.filter(d => d.recovery).length) || 0
+      };
+
+      const nutritionAvg = {
+        calories: Math.round(nutritionData.filter(d => d.calories).reduce((sum, d) => sum + parseFloat(d.calories || 0), 0) / nutritionData.filter(d => d.calories).length) || 0,
+        protein: Math.round(nutritionData.filter(d => d.protein).reduce((sum, d) => sum + parseFloat(d.protein || 0), 0) / nutritionData.filter(d => d.protein).length) || 0,
+        carbs: Math.round(nutritionData.filter(d => d.carbs).reduce((sum, d) => sum + parseFloat(d.carbs || 0), 0) / nutritionData.filter(d => d.carbs).length) || 0,
+        fat: Math.round(nutritionData.filter(d => d.fat).reduce((sum, d) => sum + parseFloat(d.fat || 0), 0) / nutritionData.filter(d => d.fat).length) || 0
+      };
+
+      return {
+        weekOf: document.getElementById('weekOf').value,
+        measurements: {
+          weight: parseFloat(document.getElementById('weight').value) || null,
+          waist: parseFloat(document.getElementById('waist').value) || null,
+          chest: parseFloat(document.getElementById('chest').value) || null,
+          middle: parseFloat(document.getElementById('middle').value) || null,
+          butt: parseFloat(document.getElementById('butt').value) || null,
+          leg: parseFloat(document.getElementById('leg').value) || null,
+          steps: parseInt(document.getElementById('steps').value) || 0
+        },
+        training: {
+          overall_performance: document.getElementById('trainingPerformance').value,
+          completed: document.getElementById('trainingCompleted').value,
+          difficulty: document.getElementById('trainingDifficulty').value,
+          recovery: document.getElementById('trainingRecovery').value,
+          enjoyment: document.getElementById('trainingEnjoyment').value
+        },
+        nutrition: {
+          daily: nutritionData.map((d, i) => ({
+            day: days[i],
+            calories: parseInt(d.calories) || 0,
+            protein: parseInt(d.protein) || 0,
+            carbs: parseInt(d.carbs) || 0,
+            fat: parseInt(d.fat) || 0
+          })).filter(d => d.calories > 0),
+          averages: nutritionAvg,
+          targets: {
+            calories: parseInt(document.getElementById('targetCalories').value) || 2725,
+            protein: parseInt(document.getElementById('targetProtein').value) || 195,
+            carbs: parseInt(document.getElementById('targetCarbs').value) || 314,
+            fat: parseInt(document.getElementById('targetFat').value) || 102
+          },
+          notes: document.getElementById('nutritionNotes').value
+        },
+        whoop: {
+          daily: whoopData.map((d, i) => ({
+            day: days[i],
+            hrv: parseInt(d.hrv) || 0,
+            rhr: parseInt(d.rhr) || 0,
+            sleep: parseFloat(d.sleep) || 0,
+            strain: parseFloat(d.strain) || 0,
+            recovery: parseInt(d.recovery) || 0
+          })).filter(d => d.hrv > 0 || d.recovery > 0),
+          averages: whoopAvg,
+          sleep_metrics: {
+            avg_duration: whoopAvg.sleep,
+            avg_efficiency: 95,
+            avg_need: 8.0,
+            avg_debt: Math.round((8 - whoopAvg.sleep) * 7),
+            consistency: 70
+          },
+          interpretation: document.getElementById('whoopInterpretation').value || `Recovery averaging ${whoopAvg.recovery}% with ${whoopAvg.sleep}h sleep.`
+        },
+        wellbeing: {
+          pain: document.getElementById('wellbeingPain').value,
+          appetite: document.getElementById('wellbeingAppetite').value,
+          cravings: document.getElementById('wellbeingCravings').value,
+          stress: document.getElementById('wellbeingStress').value,
+          mood: document.getElementById('wellbeingMood').value,
+          recovery_outside_gym: document.getElementById('wellbeingRecovery').value,
+          lifestyle_factors: document.getElementById('wellbeingLifestyle').value
+        },
+        wins: getWins(),
+        coach_questions: document.getElementById('coachQuestions').value
+      };
+    }
+
+    function updateJSON() {
+      const data = generateData();
+      document.getElementById('jsonOutput').textContent = JSON.stringify(data, null, 2);
+    }
+
+    function copyJSON() {
+      const json = document.getElementById('jsonOutput').textContent;
+      navigator.clipboard.writeText(json).then(() => {
+        alert('JSON copied to clipboard!');
+      });
+    }
+
+    function downloadJSON() {
+      const data = generateData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `week-${data.weekOf}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function saveToLocalStorage() {
+      const data = generateData();
+      localStorage.setItem('coachDashboard_draft', JSON.stringify({
+        data,
+        whoopData,
+        nutritionData,
+        savedAt: new Date().toISOString()
+      }));
+      alert('Draft saved locally! You can continue later.');
+    }
+
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem('coachDashboard_draft');
+      if (saved) {
+        try {
+          const { data, whoopData: wd, nutritionData: nd } = JSON.parse(saved);
+
+          // Restore WHOOP data
+          if (wd) {
+            wd.forEach((d, i) => { whoopData[i] = d; });
+          }
+
+          // Restore Nutrition data
+          if (nd) {
+            nd.forEach((d, i) => { nutritionData[i] = d; });
+          }
+
+          // Restore form fields
+          if (data) {
+            if (data.weekOf) document.getElementById('weekOf').value = data.weekOf;
+            if (data.measurements) {
+              if (data.measurements.weight) document.getElementById('weight').value = data.measurements.weight;
+              if (data.measurements.waist) document.getElementById('waist').value = data.measurements.waist;
+              if (data.measurements.chest) document.getElementById('chest').value = data.measurements.chest;
+              if (data.measurements.middle) document.getElementById('middle').value = data.measurements.middle;
+              if (data.measurements.butt) document.getElementById('butt').value = data.measurements.butt;
+              if (data.measurements.leg) document.getElementById('leg').value = data.measurements.leg;
+              if (data.measurements.steps) document.getElementById('steps').value = data.measurements.steps;
+            }
+          }
+
+          console.log('Loaded draft from localStorage');
+        } catch (e) {
+          console.error('Failed to load draft:', e);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
