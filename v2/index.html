@@ -1065,11 +1065,16 @@
     }
 
     function generateRecentWeeks(count) {
+      // Generate weeks starting from LAST week (not current)
+      // Check-ins are done on Monday for the previous week's data
       const weeks = [];
       const currentMonday = getMonday(new Date());
+      const lastMonday = new Date(currentMonday);
+      lastMonday.setDate(currentMonday.getDate() - 7); // Start from previous week
+
       for (let i = 0; i < count; i++) {
-        const weekStart = new Date(currentMonday);
-        weekStart.setDate(currentMonday.getDate() - i * 7);
+        const weekStart = new Date(lastMonday);
+        weekStart.setDate(lastMonday.getDate() - i * 7);
         weeks.push(toISODate(weekStart));
       }
       return weeks;

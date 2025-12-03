@@ -81,6 +81,12 @@ Located at `~/.claude/commands/coach-checkin.md`
 - Weekly data: `data/weeks/YYYY-MM-DD.json` and `v2/data/weeks/YYYY-MM-DD.json`
 - Coach config: `data/coach-config.json` (email, notifications_enabled)
 
+**File Naming Convention:**
+- Files are named by the **Monday of the week the data covers** (NOT the check-in date)
+- Example: Check-in done Monday Dec 8 → file `2025-12-01.json` (covers Dec 1-7)
+- Dashboard shows "Week of Dec 1 - Dec 7" for that file
+- This ensures WHOOP/MacroFactor data aligns with the displayed week
+
 **Dashboard Features:**
 - AI Coach Summary section displays insights, risk flags, recommendations
 - Traffic light indicators for key metrics
